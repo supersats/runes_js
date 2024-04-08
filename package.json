@@ -1,0 +1,40 @@
+{
+  "name": "runes-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "types": "./src/index.d.ts",
+  "type": "commonjs",
+  "scripts": {
+    "test": "jest --runInBand",
+    "clean": "rm -rf tsconfig.tsbuildinfo && rm -rf dist",
+    "build": "pnpm run clean && tsc --emitDeclarationOnly && swc src -d dist --strip-leading-paths && tsc-alias"
+  },
+  "keywords": [],
+  "author": "ghostcorn",
+  "license": "MIT",
+  "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@swc/cli": "^0.3.10",
+    "@swc/core": "^1.4.8",
+    "@swc/jest": "^0.2.36",
+    "@types/bs58check": "^2.1.2",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.28",
+    "assert": "^2.1.0",
+    "bip32": "^4.0.0",
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.5",
+    "bs58check": "^3.0.1",
+    "ecpair": "^2.1.0",
+    "jest": "^29.7.0",
+    "tiny-secp256k1": "^2.2.3",
+    "tsc-alias": "^1.8.8",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.2"
+  },
+  "devDependencies": {
+    "jest-config": "^29.7.0",
+    "ts-jest": "^29.1.2"
+  }
+}

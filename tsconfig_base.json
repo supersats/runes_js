@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "module": "commonjs",
+    "target": "es2020",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "outDir": "/",
+    "importHelpers": true,
+    "jsx": "react-jsx",
+    "sourceMap": true,
+    "baseUrl": "./",
+    "noImplicitAny": false,
+    "downlevelIteration": true
+  },
+  "exclude": []
+}

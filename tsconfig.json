@@ -1,0 +1,25 @@
+{
+    "extends": "./tsconfig_base.json",
+    "compilerOptions": {
+        "downlevelIteration":true,
+        "allowJs": true,
+        "baseUrl": "./",
+        "composite": true,
+        "declaration": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "incremental": true,
+        "module": "ES2020",
+        "moduleResolution": "node",
+        "outDir": ".",
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "strict": true,
+        "target": "ES2020"
+      },
+    "include": ["."],
+    "exclude": ["dist", "build", "node_modules", "./jest.config.js", "./tests"],
+    "ts-node": {
+      "swc": true
+    }
+}

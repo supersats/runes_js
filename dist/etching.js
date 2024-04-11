@@ -47,7 +47,8 @@ let Etching = class Etching {
             symbol: _obj.symbol,
             spacers: BigInt(_obj.spacers),
             premine: _obj.premine ? BigInt(_obj.premine) : null,
-            terms: _obj.terms ? _terms.Terms.fromJsonString(_obj.terms) : null
+            terms: _obj.terms ? _terms.Terms.fromJsonString(_obj.terms) : null,
+            turbo: _obj.turbo
         });
     }
     toJson() {
@@ -57,7 +58,8 @@ let Etching = class Etching {
             symbol: this.symbol,
             spacers: this.spacers,
             premine: this.premine,
-            terms: this.terms
+            terms: this.terms,
+            turbo: this.turbo
         };
     }
     toJsonString() {
@@ -68,7 +70,8 @@ let Etching = class Etching {
             symbol: this.symbol,
             spacers: this.spacers.toString(),
             premine: (_this_premine = this.premine) === null || _this_premine === void 0 ? void 0 : _this_premine.toString(),
-            terms: (_this_terms = this.terms) === null || _this_terms === void 0 ? void 0 : _this_terms.toJsonString()
+            terms: (_this_terms = this.terms) === null || _this_terms === void 0 ? void 0 : _this_terms.toJsonString(),
+            turbo: this.turbo
         });
     }
     supply() {
@@ -85,19 +88,21 @@ let Etching = class Etching {
             return null;
         }
     }
-    constructor({ divisibility, rune, symbol, spacers, premine, terms }){
+    constructor({ divisibility, rune, symbol, spacers, premine, terms, turbo }){
         _define_property(this, "divisibility", void 0);
         _define_property(this, "rune", void 0);
         _define_property(this, "symbol", void 0);
         _define_property(this, "spacers", BigInt(0));
         _define_property(this, "premine", null);
         _define_property(this, "terms", null);
+        _define_property(this, "turbo", null);
         this.divisibility = divisibility !== null && divisibility !== void 0 ? divisibility : 0;
         this.rune = rune !== null && rune !== void 0 ? rune : null;
         this.symbol = symbol !== null && symbol !== void 0 ? symbol : null;
         this.spacers = spacers !== null && spacers !== void 0 ? spacers : BigInt(0);
         this.premine = premine !== null && premine !== void 0 ? premine : null;
         this.terms = terms !== null && terms !== void 0 ? terms : null;
+        this.turbo = turbo !== null && turbo !== void 0 ? turbo : null;
     }
 };
 function addU128(a, b) {

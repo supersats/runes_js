@@ -7,6 +7,7 @@ interface IEtching {
     spacers?: bigint | null | undefined;
     premine?: bigint | null | undefined;
     terms?: Terms | null | undefined;
+    turbo?: boolean | null | undefined;
 }
 export declare class Etching {
     divisibility: number;
@@ -15,7 +16,8 @@ export declare class Etching {
     spacers: bigint;
     premine: bigint | null;
     terms: Terms | null;
-    constructor({ divisibility, rune, symbol, spacers, premine, terms }: IEtching);
+    turbo: boolean | null;
+    constructor({ divisibility, rune, symbol, spacers, premine, terms, turbo }: IEtching);
     static fromJson(json: IEtching): Etching;
     static fromJsonString(str: string): Etching;
     toJson(): IEtching;

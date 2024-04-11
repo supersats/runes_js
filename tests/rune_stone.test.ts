@@ -580,10 +580,10 @@ describe('rune_stone', () => {
     );
   });
 
-  test.skip('decipher_etching_with_all_etching_tags', () => {
+  test('decipher_etching_with_all_etching_tags', () => {
     const rs = decipherTest([
       tagInto(Tag.Flags),
-      flagMask(FlagTypes.Etch) | flagMask(FlagTypes.Terms),
+      flagMask(FlagTypes.Etch) | flagMask(FlagTypes.Terms) | flagMask(FlagTypes.Turbo),
       tagInto(Tag.Rune),
       BigInt(4),
       tagInto(Tag.Divisibility),
@@ -628,6 +628,7 @@ describe('rune_stone', () => {
           height: null,
           cap: BigInt(9),
         }),
+        turbo: true,
       }),
     );
     expect((rs as RuneStone)?.pointer).toBe(BigInt(0));

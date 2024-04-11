@@ -1,6 +1,7 @@
 export enum FlagTypes {
   Etch = 0,
   Terms = 1,
+  Turbo = 2,
   Burn = 127,
 }
 

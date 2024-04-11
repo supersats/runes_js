@@ -54,12 +54,12 @@ export class RuneStone extends Artifact {
       etching: null,
       mint: null,
       pointer: null,
-    })
-    const runestone = rune.decipher(transaction)
+    });
+    const runestone = rune.decipher(transaction);
     if (!runestone) {
-      return null
+      return null;
     }
-    return runestone
+    return runestone;
   }
 
   static fromTransactionHex(txhex: string): Artifact | null {
@@ -67,14 +67,18 @@ export class RuneStone extends Artifact {
   }
 
   public encipher(): Buffer {
-    let payload: number[] = []
+    let payload: number[] = [];
 
     if (this.etching) {
-      let flags = BigInt(0)
-      flags = new Flag(FlagTypes.Etch).set(flags)
+      let flags = BigInt(0);
+      flags = new Flag(FlagTypes.Etch).set(flags);
 
       if (this.etching.terms !== null) {
-        flags = new Flag(FlagTypes.Terms).set(flags)
+        flags = new Flag(FlagTypes.Terms).set(flags);
+      }
+
+      if (this.etching.turbo === true) {
+        flags = new Flag(FlagTypes.Turbo).set(flags);
       }
 
       payload = tagEncodeList(TAG_FLAGS, [flags], payload);
@@ -99,54 +103,54 @@ export class RuneStone extends Artifact {
       payload = tagEncodeList(TAG_MINT, [this.mint()!.block, this.mint()!.tx], payload);
     }
 
-    payload = tagEncodeOption(TAG_POINTER, this.pointer, payload)
+    payload = tagEncodeOption(TAG_POINTER, this.pointer, payload);
 
     if (this.edicts.length > 0) {
-      payload = varint.encodeToVec(TAG_BODY, payload)
+      payload = varint.encodeToVec(TAG_BODY, payload);
 
-      const edicts = this.edicts.slice()
-      edicts.sort((a, b) => (a.id < b.id ? -1 : 1))
+      const edicts = this.edicts.slice();
+      edicts.sort((a, b) => (a.id < b.id ? -1 : 1));
 
-      let previous = new RuneId(BigInt(0), BigInt(0))
+      let previous = new RuneId(BigInt(0), BigInt(0));
 
       for (const edict of edicts) {
-        let d = previous.delta(edict.id)
-        let block = d![0]
-        let tx = d![1]
-        payload = varint.encodeToVec(block, payload)
-        payload = varint.encodeToVec(tx, payload)
-        payload = varint.encodeToVec(edict.amount, payload)
-        payload = varint.encodeToVec(edict.output, payload)
-        previous = edict.id
+        let d = previous.delta(edict.id);
+        let block = d![0];
+        let tx = d![1];
+        payload = varint.encodeToVec(block, payload);
+        payload = varint.encodeToVec(tx, payload);
+        payload = varint.encodeToVec(edict.amount, payload);
+        payload = varint.encodeToVec(edict.output, payload);
+        previous = edict.id;
       }
     }
 
-    let buffers = chunkBuffer(Buffer.from(new Uint8Array(payload)), 520)
+    let buffers = chunkBuffer(Buffer.from(new Uint8Array(payload)), 520);
 
     let script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, MAGIC_NUMBER, ...buffers]);
 
-    return script
+    return script;
   }
 
   public decipher(transaction: bitcoin.Transaction): Artifact | null {
     const payload = this.payload(transaction);
     if (!payload) {
-      return null
+      return null;
     }
 
-    let integers: bigint[] = []
-    let i = 0
+    let integers: bigint[] = [];
+    let i = 0;
 
     while (i < payload.length) {
-      const _payload = payload.subarray(i)
-      const [integer, length] = varint.decode(_payload)
-      integers.push(integer)
-      i += length
+      const _payload = payload.subarray(i);
+      const [integer, length] = varint.decode(_payload);
+      integers.push(integer);
+      i += length;
     }
 
-    const message = Message.fromIntegers(transaction, integers)
+    const message = Message.fromIntegers(transaction, integers);
 
-    let fields = message.fields
+    let fields = message.fields;
 
     let flaws = message.flaws;
 
@@ -156,21 +160,21 @@ export class RuneStone extends Artifact {
       return new RuneId(values[0], values[1]);
     });
 
-    let pointer = tagTaker(TAG_POINTER, 1, fields, (values) => {
-      let _pointer = values[0]
+    let pointer = tagTaker(TAG_POINTER, 1, fields, values => {
+      let _pointer = values[0];
       if (Number(_pointer) < transaction.outs.length) {
-        return _pointer
+        return _pointer;
       } else {
-        return null
+        return null;
       }
     });
 
-    let divisibility = tagTaker(TAG_DIVISIBILITY, 1, fields, (values) => {
-      let _divisibility = values[0]
+    let divisibility = tagTaker(TAG_DIVISIBILITY, 1, fields, values => {
+      let _divisibility = values[0];
       if (_divisibility < BigInt(MAX_DIVISIBILITY)) {
-        return _divisibility
+        return _divisibility;
       } else {
-        return null
+        return null;
       }
     });
 
@@ -196,7 +200,7 @@ export class RuneStone extends Artifact {
       if (_spacers <= BigInt(MAX_SPACERS)) {
         return _spacers;
       } else {
-        return null
+        return null;
       }
     });
 
@@ -224,20 +228,26 @@ export class RuneStone extends Artifact {
       return start === null && end === null ? null : [start, end];
     })();
 
-    let etch: boolean = false
-    let terms: boolean = false
-    let flags = tagTaker(TAG_FLAGS, 1, fields, (values) => {
-      return values[0] ?? null
-    })
+    let etch: boolean = false;
+    let terms: boolean = false;
+    let turbo: boolean = false;
+
+    let flags = tagTaker(TAG_FLAGS, 1, fields, values => {
+      return values[0] ?? null;
+    });
 
     if (flags !== null) {
-      let _etch = new Flag(FlagTypes.Etch).take(flags)
-      etch = _etch[0]
-      flags = _etch[1]
+      let _etch = new Flag(FlagTypes.Etch).take(flags);
+      etch = _etch[0];
+      flags = _etch[1];
 
       let _terms = new Flag(FlagTypes.Terms).take(flags);
       terms = _terms[0];
       flags = _terms[1];
+
+      let _turbo = new Flag(FlagTypes.Turbo).take(flags);
+      turbo = _turbo[0];
+      flags = _turbo[1];
     }
 
     if (etch) {
@@ -255,6 +265,7 @@ export class RuneStone extends Artifact {
               offset,
             })
           : null,
+        turbo,
       });
       if (etching.supply() == null) {
         flaws |= new Flaw(FlawTypes.SupplyOverflow).flag();
@@ -301,10 +312,10 @@ export class RuneStone extends Artifact {
   }
 
   public payload(transaction: bitcoin.Transaction): Buffer | null {
-    let solution: Buffer | null = null
+    let solution: Buffer | null = null;
 
     for (const output of transaction.outs) {
-      const script = bitcoin.script.decompile(output.script)
+      const script = bitcoin.script.decompile(output.script);
       // 检查是否以 OP_RETURN 开始
       if (script && script[0] === bitcoin.opcodes.OP_RETURN) {
         // 检查是否包含特定标记 "RUNE_TEST"
@@ -315,23 +326,23 @@ export class RuneStone extends Artifact {
           // && script[1].toString() === this.TAG
         ) {
           // 提取随后的数据
-          let payload = Buffer.alloc(0)
+          let payload = Buffer.alloc(0);
           for (let i = 2; i < script.length; i++) {
             if (Buffer.isBuffer(script[i])) {
-              payload = Buffer.concat([payload, script[i] as Buffer])
+              payload = Buffer.concat([payload, script[i] as Buffer]);
             }
           }
-          solution = payload
-          break
+          solution = payload;
+          break;
         } else {
-          continue
+          continue;
         }
       } else {
-        continue
+        continue;
       }
     }
 
-    return solution
+    return solution;
   }
 }
 
@@ -524,38 +535,35 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
 }
 
 export function getScriptInstructions(script: Buffer) {
-  const chunks = bitcoin.script.decompile(script)
-  if (chunks === null) throw new Error("Invalid script")
-  return chunks.map((chunk) => {
+  const chunks = bitcoin.script.decompile(script);
+  if (chunks === null) throw new Error('Invalid script');
+  return chunks.map(chunk => {
     if (Buffer.isBuffer(chunk)) {
-      return { type: "data", value: chunk.toString("hex") }
+      return { type: 'data', value: chunk.toString('hex') };
     } else {
       return {
-        type: "opcode",
-        value: bitcoin.script.toASM([chunk]).split(" ")[0],
-      }
+        type: 'opcode',
+        value: bitcoin.script.toASM([chunk]).split(' ')[0],
+      };
     }
-  })
+  });
 }
 
 function charFromU32(code: number) {
   if (code > 0x10ffff || (code >= 0xd800 && code <= 0xdfff)) {
     // 超出 Unicode 范围或是代理对的编码
-    return null
+    return null;
   }
-  return String.fromCodePoint(code)
+  return String.fromCodePoint(code);
 }
 
 export function chunkBuffer(buffer: Buffer, chunkSize: number) {
-  assert(
-    !isNaN(chunkSize) && chunkSize > 0,
-    "Chunk size should be positive number",
-  )
-  const result: Buffer[] = []
-  const len = buffer.byteLength
-  let i = 0
+  assert(!isNaN(chunkSize) && chunkSize > 0, 'Chunk size should be positive number');
+  const result: Buffer[] = [];
+  const len = buffer.byteLength;
+  let i = 0;
   while (i < len) {
-    result.push(buffer.subarray(i, (i += chunkSize)))
+    result.push(buffer.subarray(i, (i += chunkSize)));
   }
-  return result
+  return result;
 }

@@ -195,6 +195,9 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
             if (this.etching.terms !== null) {
                 flags = new _flag.Flag(_flag.FlagTypes.Terms).set(flags);
             }
+            if (this.etching.turbo === true) {
+                flags = new _flag.Flag(_flag.FlagTypes.Turbo).set(flags);
+            }
             payload = (0, _tag.tagEncodeList)(TAG_FLAGS, [
                 flags
             ], payload);
@@ -335,6 +338,7 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
         })();
         let etch = false;
         let terms = false;
+        let turbo = false;
         let flags = (0, _tag.tagTaker)(TAG_FLAGS, 1, fields, (values)=>{
             var _values_;
             return (_values_ = values[0]) !== null && _values_ !== void 0 ? _values_ : null;
@@ -346,6 +350,9 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
             let _terms = new _flag.Flag(_flag.FlagTypes.Terms).take(flags);
             terms = _terms[0];
             flags = _terms[1];
+            let _turbo = new _flag.Flag(_flag.FlagTypes.Turbo).take(flags);
+            turbo = _turbo[0];
+            flags = _turbo[1];
         }
         if (etch) {
             etching = new _etching.Etching({
@@ -359,7 +366,8 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
                     height,
                     amount,
                     offset
-                }) : null
+                }) : null,
+                turbo
             });
             if (etching.supply() == null) {
                 flaws |= new _flaw.Flaw(_flaw.FlawTypes.SupplyOverflow).flag();
@@ -587,19 +595,19 @@ function decodeOpReturn(scriptHex, outLength) {
 }
 function getScriptInstructions(script) {
     const chunks = _bitcoinjslib.script.decompile(script);
-    if (chunks === null) throw new Error("Invalid script");
+    if (chunks === null) throw new Error('Invalid script');
     return chunks.map((chunk)=>{
         if (Buffer.isBuffer(chunk)) {
             return {
-                type: "data",
-                value: chunk.toString("hex")
+                type: 'data',
+                value: chunk.toString('hex')
             };
         } else {
             return {
-                type: "opcode",
+                type: 'opcode',
                 value: _bitcoinjslib.script.toASM([
                     chunk
-                ]).split(" ")[0]
+                ]).split(' ')[0]
             };
         }
     });
@@ -611,7 +619,7 @@ function charFromU32(code) {
     return String.fromCodePoint(code);
 }
 function chunkBuffer(buffer, chunkSize) {
-    (0, _assert.default)(!isNaN(chunkSize) && chunkSize > 0, "Chunk size should be positive number");
+    (0, _assert.default)(!isNaN(chunkSize) && chunkSize > 0, 'Chunk size should be positive number');
     const result = [];
     const len = buffer.byteLength;
     let i = 0;

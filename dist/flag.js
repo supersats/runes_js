@@ -45,6 +45,7 @@ var FlagTypes;
 (function(FlagTypes) {
     FlagTypes[FlagTypes["Etch"] = 0] = "Etch";
     FlagTypes[FlagTypes["Terms"] = 1] = "Terms";
+    FlagTypes[FlagTypes["Turbo"] = 2] = "Turbo";
     FlagTypes[FlagTypes["Burn"] = 127] = "Burn";
 })(FlagTypes || (FlagTypes = {}));
 let Flag = class Flag {

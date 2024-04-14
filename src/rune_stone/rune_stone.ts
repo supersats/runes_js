@@ -280,21 +280,6 @@ export class RuneStone extends Artifact {
       flaws |= new Flaw(FlawTypes.UnrecognizedEvenTag).flag();
     }
 
-    // console.log({
-    //   kk: fields,
-    //   terms,
-    //   overflow,
-    //   cenotaph,
-    //   flags,
-    //   keys: Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0),
-    //   res:
-    //     overflow === true ||
-    //     cenotaph === true ||
-    //     (flags !== undefined && flags !== BigInt(0) && flags !== null) ||
-    //     Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0),
-    //   //
-    // });
-
     if (flaws !== BigInt(0)) {
       return new Cenotaph({
         flaws,
@@ -316,16 +301,8 @@ export class RuneStone extends Artifact {
 
     for (const output of transaction.outs) {
       const script = bitcoin.script.decompile(output.script);
-      // 检查是否以 OP_RETURN 开始
       if (script && script[0] === bitcoin.opcodes.OP_RETURN) {
-        // 检查是否包含特定标记 "RUNE_TEST"
-        if (
-          script.length > 1 &&
-          !Buffer.isBuffer(script[1]) &&
-          script[1] === MAGIC_NUMBER
-          // && script[1].toString() === this.TAG
-        ) {
-          // 提取随后的数据
+        if (script.length > 1 && !Buffer.isBuffer(script[1]) && script[1] === MAGIC_NUMBER) {
           let payload = Buffer.alloc(0);
           for (let i = 2; i < script.length; i++) {
             if (Buffer.isBuffer(script[i])) {
@@ -393,8 +370,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
         return null;
       }
     });
-    // fields.delete(TAG_POINTER);
-
     let divisibility = tagTaker(TAG_DIVISIBILITY, 1, fields, values => {
       let _divisibility = values[0];
       if (_divisibility < BigInt(MAX_DIVISIBILITY)) {
@@ -501,20 +476,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
       flaws |= new Flaw(FlawTypes.UnrecognizedEvenTag).flag();
     }
 
-    // console.log({
-    //   kk: fields,
-    //   terms,
-    //   overflow,
-    //   cenotaph,
-    //   flags,
-    //   keys: Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0),
-    //   res:
-    //     overflow === true ||
-    //     cenotaph === true ||
-    //     (flags !== undefined && flags !== BigInt(0) && flags !== null) ||
-    //     Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0),
-    //   //
-    // });
     if (flaws !== BigInt(0)) {
       return new Cenotaph({
         flaws,

@@ -5,12 +5,12 @@ import { RuneId } from '../rune_id';
 import { Flaw, FlawTypes } from '../flaw';
 
 export class Message {
-  constructor(public flaws: bigint, public fields: Map<bigint, bigint[]>, public edicts: Edict[]) {}
+  constructor(public flaws: Flaw | null, public fields: Map<bigint, bigint[]>, public edicts: Edict[]) {}
 
   static fromIntegers(tx: Transaction, payload: bigint[]): Message {
     const fields = new Map<bigint, bigint[]>();
     const edicts: Edict[] = [];
-    let flaws = BigInt(0);
+    let flaws: Flaw | null = null;
     for (let i = 0; i < payload.length; i += 2) {
       const tag = payload[i];
 
@@ -21,25 +21,24 @@ export class Message {
           const chunk = payload.slice(j, j + 4);
 
           if (chunk.length !== 4) {
-            flaws |= new Flaw(FlawTypes.TrailingIntegers).flag();
-            console.log('flaws: FlawTypes.TrailingIntegers).flag() ', flaws);
+            flaws = new Flaw(FlawTypes.TrailingIntegers);
+            // console.log('flaws: FlawTypes.TrailingIntegers).flag() ', flaws);
             break;
           }
 
           // Assuming `id.next()` is an async function or a function that returns an object or null
           let next = id.next(chunk[0], chunk[1]);
           if (next instanceof Error) {
-            flaws |= new Flaw(FlawTypes.EdictRuneId).flag();
-            console.log('flaws: FlawTypes.EdictRuneId).flag() ', flaws);
+            flaws = new Flaw(FlawTypes.EdictRuneId);
+            // console.log('flaws: FlawTypes.EdictRuneId).flag() ', flaws);
             break;
           }
 
           // Assuming `Edict.fromIntegers()` is a function that returns an Edict object or null
           let edict = Edict.fromIntegers(tx, next, chunk[2], chunk[3]);
           if (!edict) {
-            flaws |= new Flaw(FlawTypes.EdictOutput).flag();
-            console.log('flaws: FlawTypes.EdictOutput).flag() ', flaws);
-
+            flaws = new Flaw(FlawTypes.EdictOutput);
+            // console.log('flaws: FlawTypes.EdictOutput).flag() ', flaws);
             break;
           }
 
@@ -53,7 +52,7 @@ export class Message {
       if (payload[i + 1] !== undefined) {
         value = payload[i + 1];
       } else {
-        flaws |= new Flaw(FlawTypes.TruncatedField).flag();
+        flaws = new Flaw(FlawTypes.TruncatedField);
         break;
       }
       let _values = fields.get(tag);
@@ -74,7 +73,7 @@ export class Message {
     const fields = new Map<bigint, bigint[]>();
     const edicts: Edict[] = [];
     // let cenotaph = false;
-    let flaws = BigInt(0);
+    let flaws: Flaw | null = null;
     for (let i = 0; i < payload.length; i += 2) {
       const tag = payload[i];
 
@@ -83,7 +82,7 @@ export class Message {
 
         for (let j = i + 1; i < payload.length; j += 4) {
           if (j + 3 >= payload.length) {
-            flaws |= new Flaw(FlawTypes.TrailingIntegers).flag();
+            flaws = new Flaw(FlawTypes.TrailingIntegers);
             break;
           }
 
@@ -91,14 +90,14 @@ export class Message {
           // Assuming `id.next()` is an async function or a function that returns an object or null
           let next = id.next(chunk[0], chunk[1]);
           if (next instanceof Error) {
-            flaws |= new Flaw(FlawTypes.EdictRuneId).flag();
+            flaws = new Flaw(FlawTypes.EdictRuneId);
             break;
           }
 
           // Assuming `Edict.fromIntegers()` is a function that returns an Edict object or null
           let edict = Edict.fromOpReturn(next, chunk[2], chunk[3]);
           if (!edict) {
-            flaws |= new Flaw(FlawTypes.EdictOutput).flag();
+            flaws = new Flaw(FlawTypes.EdictOutput);
             break;
           }
 
@@ -112,7 +111,7 @@ export class Message {
       if (payload[i + 1] !== undefined) {
         value = payload[i + 1];
       } else {
-        flaws |= new Flaw(FlawTypes.TruncatedField).flag();
+        flaws = new Flaw(FlawTypes.TruncatedField);
         break;
       }
       let _values = fields.get(tag);

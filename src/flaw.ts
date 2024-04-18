@@ -56,7 +56,7 @@ export class Flaw {
       case FlawTypes.UnrecognizedEvenTag:
         return 'Unrecognized even tag';
       case FlawTypes.UnrecognizedFlag:
-        return 'Unrecognized flag';
+        return 'Unrecognized field';
       case FlawTypes.Varint:
         return 'Invalid varint';
       default:

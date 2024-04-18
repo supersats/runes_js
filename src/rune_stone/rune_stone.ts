@@ -268,19 +268,19 @@ export class RuneStone extends Artifact {
         turbo,
       });
       if (etching.supply() == null) {
-        flaws |= new Flaw(FlawTypes.SupplyOverflow).flag();
+        flaws = new Flaw(FlawTypes.SupplyOverflow);
       }
     }
 
     if (flags !== undefined && flags !== BigInt(0) && flags !== null) {
-      flaws |= new Flaw(FlawTypes.UnrecognizedFlag).flag();
+      flaws = new Flaw(FlawTypes.UnrecognizedFlag);
     }
 
     if (Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0)) {
-      flaws |= new Flaw(FlawTypes.UnrecognizedEvenTag).flag();
+      flaws = new Flaw(FlawTypes.UnrecognizedEvenTag);
     }
 
-    if (flaws !== BigInt(0)) {
+    if (flaws !== null) {
       return new Cenotaph({
         flaws,
         etching: etching?.rune ?? null,
@@ -464,19 +464,19 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
           : null,
       });
       if (etching.supply() == null) {
-        flaws |= new Flaw(FlawTypes.SupplyOverflow).flag();
+        flaws = new Flaw(FlawTypes.SupplyOverflow);
       }
     }
 
     if (flags !== undefined && flags !== BigInt(0) && flags !== null) {
-      flaws |= new Flaw(FlawTypes.UnrecognizedFlag).flag();
+      flaws = new Flaw(FlawTypes.UnrecognizedFlag);
     }
 
     if (Array.from(fields.keys()).some(tag => Number.parseInt(tag.toString()) % 2 === 0)) {
-      flaws |= new Flaw(FlawTypes.UnrecognizedEvenTag).flag();
+      flaws = new Flaw(FlawTypes.UnrecognizedEvenTag);
     }
 
-    if (flaws !== BigInt(0)) {
+    if (flaws !== null) {
       return new Cenotaph({
         flaws,
         etching: etching?.rune ?? null,

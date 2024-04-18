@@ -22,7 +22,7 @@ import { SpacedRune } from '../src/spaced_rune';
 
 describe('Issue/Mint/Transfer/Burn', () => {
   // replace with your own private key
-  const wif = 'cRogfgbV2j3fby8Yu8GqbahRSaJF9RxR21eBUnt3UFpnoNzE8qPN';
+  const wif = '';
   // replace with your own network
   const network = bitcoin.networks.testnet;
 

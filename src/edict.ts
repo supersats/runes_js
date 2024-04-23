@@ -34,12 +34,12 @@ export class Edict {
     return new Edict({ id, amount, output });
   }
 
-  static fromOpReturn(id: RuneId, amount: bigint, output: bigint): Edict | null {
+  static fromOpReturn(outlength: number, id: RuneId, amount: bigint, output: bigint): Edict | null {
     if (id.block === BigInt(0) && id.tx > BigInt(0)) {
       return null;
     }
 
-    if (output > BigInt(1)) {
+    if (output > BigInt(outlength)) {
       return null;
     }
     return new Edict({ id, amount, output });
@@ -66,11 +66,11 @@ export class Edict {
     };
   }
 
-  public toJsonString() {
-    return JSON.stringify({
+  public toJsonObject(): Record<string, any> {
+    return {
       id: this.id.toString(),
       amount: this.amount.toString(),
       output: this.output.toString(),
-    });
+    };
   }
 }

@@ -23,4 +23,11 @@ export class Cenotaph extends Artifact {
         return new Flaw(d);
       });
   }
+  toString(): string {
+    return JSON.stringify({
+      etching: this.etching?.toString(),
+      flaws: this._flaws.toMessage(),
+      mint: this.mint()?.toString(),
+    });
+  }
 }

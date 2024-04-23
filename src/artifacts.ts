@@ -8,4 +8,5 @@ export abstract class Artifact {
   public mint() {
     return this._mint;
   }
+  abstract toString(): string;
 }

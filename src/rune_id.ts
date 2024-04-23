@@ -25,8 +25,8 @@ export class RuneId {
     return this.block | this.tx;
   }
 
-  public toString(): string {
-    return `${this.block.toString()}:${this.tx}`;
+  public toString(): string | null {
+    return this.block && this.tx ? `${this.block.toString()}` : null;
   }
 
   static fromString(s: string): RuneId | Error {

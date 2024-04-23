@@ -13,7 +13,6 @@ export class Message {
     let flaws: Flaw | null = null;
     for (let i = 0; i < payload.length; i += 2) {
       const tag = payload[i];
-
       if (tag === TAG_BODY) {
         let id = new RuneId(BigInt(0), BigInt(0));
 
@@ -69,35 +68,37 @@ export class Message {
     return new Message(flaws, fields, edicts);
   }
 
-  static fromOpReturn(payload: bigint[]): Message {
+  static fromOpReturn(outLength: number, payload: bigint[]): Message {
     const fields = new Map<bigint, bigint[]>();
     const edicts: Edict[] = [];
-    // let cenotaph = false;
     let flaws: Flaw | null = null;
     for (let i = 0; i < payload.length; i += 2) {
       const tag = payload[i];
-
       if (tag === TAG_BODY) {
         let id = new RuneId(BigInt(0), BigInt(0));
 
-        for (let j = i + 1; i < payload.length; j += 4) {
-          if (j + 3 >= payload.length) {
+        for (let j = i + 1; j < payload.length; j += 4) {
+          const chunk = payload.slice(j, j + 4);
+
+          if (chunk.length !== 4) {
             flaws = new Flaw(FlawTypes.TrailingIntegers);
+            // console.log('flaws: FlawTypes.TrailingIntegers).flag() ', flaws);
             break;
           }
 
-          const chunk = payload.slice(j, j + 4);
           // Assuming `id.next()` is an async function or a function that returns an object or null
           let next = id.next(chunk[0], chunk[1]);
           if (next instanceof Error) {
             flaws = new Flaw(FlawTypes.EdictRuneId);
+            // console.log('flaws: FlawTypes.EdictRuneId).flag() ', flaws);
             break;
           }
 
           // Assuming `Edict.fromIntegers()` is a function that returns an Edict object or null
-          let edict = Edict.fromOpReturn(next, chunk[2], chunk[3]);
+          let edict = Edict.fromOpReturn(outLength, next, chunk[2], chunk[3]);
           if (!edict) {
             flaws = new Flaw(FlawTypes.EdictOutput);
+            // console.log('flaws: FlawTypes.EdictOutput).flag() ', flaws);
             break;
           }
 

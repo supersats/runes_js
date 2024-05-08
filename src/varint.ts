@@ -22,9 +22,9 @@ export function decode(buffer: Uint8Array): [bigint, number] {
 }
 
 export function encode(n: bigint): Uint8Array {
-  let _v: number[] = []
-  const v = encodeToVec(n, _v)
-  return new Uint8Array(v)
+  let _v: number[] = [];
+  const v = encodeToVec(n, _v);
+  return new Uint8Array(v);
 }
 
 export function encodeToVec(n: bigint, v: number[]): number[] {
@@ -50,43 +50,40 @@ export function encodeToVec(n: bigint, v: number[]): number[] {
   return v;
 }
 
-export function bigintToLEBytes(bn: bigint) {
-  const byteSize = Math.ceil(bn.toString(2).length / 8)
-  const bytes = new Uint8Array(byteSize)
-
-  for (let i = 0; i < byteSize; i++) {
-    bytes[i] = Number(bn & BigInt(0xff))
-    bn >>= BigInt(8)
+export function bigintToLEBytes(value: bigint): Uint8Array {
+  const buffer = new ArrayBuffer(16);
+  const view = new DataView(buffer);
+  for (let i = 0; i < 16; i++) {
+    view.setUint8(i, Number((value >> BigInt(i * 8)) & BigInt(0xFF)));
   }
-
-  return bytes
+  return new Uint8Array(buffer);
 }
 
 export function decode2Commitment(buffer: Uint8Array): [bigint, number] {
-  let n: bigint = BigInt(0)
-  let i = 0
-  console.log(buffer)
+  let n: bigint = BigInt(0);
+  let i = 0;
+  console.log(buffer);
   while (true) {
-    console.log("iteration:", i, buffer[i])
+    console.log('iteration:', i, buffer[i]);
     if (i > 18) {
-      throw new Error("Varint decoding error: OverLong")
+      throw new Error('Varint decoding error: OverLong');
     }
     if (i >= buffer.length) {
-      throw new Error("Varint decoding error: Buffer underflow")
+      throw new Error('Varint decoding error: Buffer underflow');
     }
-    const byte = buffer[i]
+    const byte = buffer[i];
     if (i == 18 && (byte & 0b0111_1100) != 0) {
-      throw new Error("Varint decoding error: Overflow")
+      throw new Error('Varint decoding error: Overflow');
     }
-    console.log("N:", n)
-    let value = BigInt(byte & 0b0111_1111)
-    value = value << BigInt(7 * i)
-    n |= value
-    console.log("N:", n)
+    console.log('N:', n);
+    let value = BigInt(byte & 0b0111_1111);
+    value = value << BigInt(7 * i);
+    n |= value;
+    console.log('N:', n);
     if ((byte & 0b1000_0000) == 0) {
-      console.log("finish")
-      return [n, i + 1]
+      console.log('finish');
+      return [n, i + 1];
     }
-    i++
+    i++;
   }
 }

@@ -39,9 +39,9 @@ export class RuneId {
     return new RuneId(block, tx);
   }
 
-  public delta(next: RuneId): [bigint, bigint] | null {
+  public delta(next: RuneId): [bigint, bigint] {
     const block = next.block - this.block;
-    const tx = next.tx - this.tx;
+    const tx = block == BigInt(0) ? next.tx - this.tx : next.tx;
     return [block, tx];
   }
 

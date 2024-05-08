@@ -14,19 +14,22 @@ const ECPair = ECPairFactory(ecc);
 
 export function logToJSON(any: any) {
   console.log(
-    JSON.stringify(
-      any,
-      (k, v) => {
-        if (v.type === 'Buffer') {
-          return Buffer.from(v.data).toString('hex');
-        }
-        if (k === 'network') {
-          return v === bitcoin.networks.bitcoin ? 'bitcoin' : 'testnet';
-        }
-        return v;
-      },
-      2,
-    ),
+      JSON.stringify(
+          any,
+          (k, v) => {
+            if (v.type === 'Buffer') {
+              return Buffer.from(v.data).toString('hex');
+            }
+            if (k === 'network') {
+              return v === bitcoin.networks.bitcoin ? 'bitcoin' : 'testnet';
+            }
+            if (typeof v == "bigint") {
+              return v.toString(10);
+            }
+            return v;
+          },
+          2,
+      ),
   );
 }
 

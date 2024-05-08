@@ -6,7 +6,7 @@ import * as varint from '../varint';
 import { MAGIC_NUMBER, MAX_DIVISIBILITY, MAX_SPACERS, Rune } from '../rune';
 import assert from 'assert';
 import { Flag, FlagTypes } from '../flag';
-import { Tag, tagEncodeList, tagEncodeOption, tagEncoder, tagTaker } from '../tag';
+import { Tag, tagEncodeList, tagEncodeOption, tagTaker } from '../tag';
 import { RuneId } from '../rune_id';
 import { Terms } from '../terms';
 import { Artifact } from '../artifacts';
@@ -40,11 +40,16 @@ export class RuneStone extends Artifact {
   // public mint: RuneId | null;
   public pointer: bigint | null;
 
-  constructor({ edicts, etching, mint, pointer }: { edicts?: Edict[]; etching?: Etching | null; mint?: RuneId | null; pointer?: bigint | null }) {
+  constructor({ edicts, etching, mint, pointer }: {
+    edicts?: Edict[];
+    etching?: Etching | null;
+    mint?: RuneId | null;
+    pointer?: bigint | null
+  }) {
     super();
     this.edicts = edicts ?? [];
     this.etching = etching ?? null;
-    this.pointer = pointer ?? BigInt(0);
+    this.pointer = pointer ?? null;
     this.setMint(mint ?? null);
   }
 
@@ -108,8 +113,9 @@ export class RuneStone extends Artifact {
       }
     }
 
-    if (this.mint() !== null) {
-      payload = tagEncodeList(TAG_MINT, [this.mint()!.block, this.mint()!.tx], payload);
+    const mint = this.mint();
+    if (mint) {
+      payload = tagEncodeList(TAG_MINT, [mint!.block, mint!.tx], payload);
     }
 
     payload = tagEncodeOption(TAG_POINTER, this.pointer, payload);
@@ -118,14 +124,12 @@ export class RuneStone extends Artifact {
       payload = varint.encodeToVec(TAG_BODY, payload);
 
       const edicts = this.edicts.slice();
-      edicts.sort((a, b) => (a.id < b.id ? -1 : 1));
+      edicts.sort((a, b) => Number((a.id.toBigInt() - b.id.toBigInt()).toString(10)));
 
       let previous = new RuneId(BigInt(0), BigInt(0));
 
       for (const edict of edicts) {
-        let d = previous.delta(edict.id);
-        let block = d![0];
-        let tx = d![1];
+        const [block, tx] = previous.delta(edict.id);
         payload = varint.encodeToVec(block, payload);
         payload = varint.encodeToVec(tx, payload);
         payload = varint.encodeToVec(edict.amount, payload);

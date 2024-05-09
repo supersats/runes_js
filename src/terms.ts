@@ -37,12 +37,4 @@ export class Terms {
       offset: this.offset?.toString(),
     });
   }
-  toJsonObject(): Record<string, any> {
-    return {
-      cap: this.cap?.toString(),
-      height: this.height?.toString(),
-      amount: this.amount?.toString(),
-      offset: this.offset?.toString(),
-    };
-  }
 }

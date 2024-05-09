@@ -66,17 +66,6 @@ export class Etching {
       turbo: this.turbo,
     };
   }
-  public toJsonObject(): Record<string, any> {
-    return {
-      divisibility: this.divisibility,
-      rune: this.rune?.toString(),
-      symbol: this.symbol,
-      spacers: this.spacers.toString(),
-      premine: this.premine?.toString(),
-      terms: this.terms?.toJsonObject(),
-      turbo: this.turbo,
-    };
-  }
 
   public toJsonString(): string {
     return JSON.stringify({

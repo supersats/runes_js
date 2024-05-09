@@ -53,15 +53,6 @@ export class RuneStone extends Artifact {
     this.setMint(mint ?? null);
   }
 
-  toString(): string {
-    return JSON.stringify({
-      edicts: this.edicts.map(e => e.toJsonObject()),
-      etching: this.etching?.toJsonObject(),
-      mint: this.mint()?.toString(),
-      pointer: this.pointer?.toString(),
-    });
-  }
-
   static fromTransaction(transaction: Transaction): Artifact | null {
     const rune = new RuneStone({
       edicts: [],
@@ -362,7 +353,7 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
       i += length;
     }
 
-    const message = Message.fromOpReturn(outLength, integers);
+    const message = Message.fromOpReturn(integers);
 
     let fields = message.fields;
 
@@ -373,6 +364,7 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
     let mint = tagTaker<RuneId>(TAG_MINT, 2, fields, values => {
       return new RuneId(values[0], values[1]);
     });
+    // fields.delete(TAG_MINT);
 
     let pointer = tagTaker(TAG_POINTER, 1, fields, values => {
       let _pointer = values[0];
@@ -382,7 +374,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
         return null;
       }
     });
-
     let divisibility = tagTaker(TAG_DIVISIBILITY, 1, fields, values => {
       let _divisibility = values[0];
       if (_divisibility < BigInt(MAX_DIVISIBILITY)) {
@@ -410,8 +401,7 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
 
     let spacers = tagTaker(TAG_SPACERS, 1, fields, values => {
       let _spacers = values[0];
-
-      if (_spacers <= BigInt(MAX_SPACERS)) {
+      if (_spacers < BigInt(MAX_SPACERS)) {
         return _spacers;
       } else {
         return null;
@@ -426,11 +416,14 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
       let start = tagTaker(TAG_OFFSET_START, 1, fields, values => {
         return values[0] ?? null;
       });
+      // fields.delete(TAG_OFFSET_START);
       let end = tagTaker(TAG_OFFSET_END, 1, fields, values => {
         return values[0] ?? null;
       });
+      // fields.delete(TAG_OFFSET_END);
       return start === null && end === null ? null : [start, end];
     })();
+    // console.log({ fields });
 
     let height = (() => {
       let start = tagTaker(TAG_HEIGHT_START, 1, fields, values => {
@@ -444,8 +437,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
 
     let etch: boolean = false;
     let terms: boolean = false;
-    let turbo: boolean = false;
-
     let flags = tagTaker(TAG_FLAGS, 1, fields, values => {
       return values[0] ?? null;
     });
@@ -458,10 +449,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
       let _terms = new Flag(FlagTypes.Terms).take(flags);
       terms = _terms[0];
       flags = _terms[1];
-
-      let _turbo = new Flag(FlagTypes.Turbo).take(flags);
-      turbo = _turbo[0];
-      flags = _turbo[1];
     }
 
     if (etch) {
@@ -479,7 +466,6 @@ export function decodeOpReturn(scriptHex: string | Buffer, outLength: number): A
               offset,
             })
           : null,
-        turbo,
       });
       if (etching.supply() == null) {
         flaws = new Flaw(FlawTypes.SupplyOverflow);

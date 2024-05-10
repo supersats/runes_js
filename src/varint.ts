@@ -1,24 +1,30 @@
 export function decode(buffer: Uint8Array): [bigint, number] {
   let res: [bigint, number] = [BigInt(0), 0];
   let n = BigInt(0);
-
+  let undeterminted = true;
   for (let i = 0; i < buffer.length; i++) {
     if (i > 18) {
-      throw new Error('Varint decoding error: Buffer overflow');
+      throw new Error('Varint decoding error: Buffer overlong');
     }
     const byte = buffer[i];
-    let value = BigInt(byte & 0b0111_1111);
-    if (i === 18 && (value & BigInt(0b0111_1100)) !== BigInt(0)) {
+    let value = BigInt(byte & 0b01111111);
+
+    if (i === 18 && (value & BigInt(0b01111100)) !== BigInt(0)) {
       throw new Error('Varint decoding error: Buffer overflow');
     }
     n |= value << BigInt(7 * i);
     if ((byte & 0b1000_0000) === 0) {
       res[0] = n;
       res[1] = i + 1;
+      undeterminted = false;
       break;
     }
   }
-  return res;
+  if (undeterminted) {
+    throw new Error('Varint decoding error: Buffer undeterminted');
+  } else {
+    return res;
+  }
 }
 
 export function encode(n: bigint): Uint8Array {
@@ -54,7 +60,7 @@ export function bigintToLEBytes(value: bigint): Uint8Array {
   const buffer = new ArrayBuffer(16);
   const view = new DataView(buffer);
   for (let i = 0; i < 16; i++) {
-    view.setUint8(i, Number((value >> BigInt(i * 8)) & BigInt(0xFF)));
+    view.setUint8(i, Number((value >> BigInt(i * 8)) & BigInt(0xff)));
   }
   return new Uint8Array(buffer);
 }

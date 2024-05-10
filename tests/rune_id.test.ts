@@ -1,21 +1,38 @@
 import { RuneId } from '../src/index';
 
 describe('rune_id', () => {
+  test('delta', () => {
+    const expected = [
+      new RuneId(BigInt(3), BigInt(1)),
+      new RuneId(BigInt(4), BigInt(2)),
+      new RuneId(BigInt(1), BigInt(2)),
+      new RuneId(BigInt(1), BigInt(1)),
+      new RuneId(BigInt(3), BigInt(1)),
+      new RuneId(BigInt(2), BigInt(0)),
+    ];
+    expected.sort();
+    expect(expected.map(e => e.toString()).toString()).toBe(
+      [
+        new RuneId(BigInt(1), BigInt(1)),
+        new RuneId(BigInt(1), BigInt(2)),
+        new RuneId(BigInt(2), BigInt(0)),
+        new RuneId(BigInt(3), BigInt(1)),
+        new RuneId(BigInt(3), BigInt(1)),
+        new RuneId(BigInt(4), BigInt(2)),
+      ]
+        .map(e => e.toString())
+        .toString(),
+    );
+  });
+
   test('should be ok', () => {
-    // 使用示例
-    // const fromBigInt = RuneId.tryFrom(BigInt(0x060504030201));
-    // const runeId = new RuneId(BigInt(0x06050403), 0x0201);
-    // expect(fromBigInt.toString()).toEqual(runeId.toString());
-    // const runeId2 = new RuneId(BigInt(3), 1);
-    // expect(RuneId.toBigInt(runeId2)).toBe(BigInt(196609));
-    // // if (!(fromBigInt instanceof Error)) {
-    // //   console.log(fromBigInt);
-    // // }
-    // const fromString = RuneId.fromString('1:2');
-    // expect((fromString as RuneId).block).toEqual(BigInt(1));
-    // expect((fromString as RuneId).tx).toEqual(2);
-    // if (!(fromString instanceof Error)) {
-    //   console.log(fromString);
-    // }
+    const d = new RuneId(BigInt('2587804'), BigInt('2477'));
+    const fromString = RuneId.fromString('2587804:2477');
+    expect((fromString as RuneId).block).toEqual(BigInt(2587804));
+    expect((fromString as RuneId).tx).toEqual(BigInt(2477));
+    expect(fromString).toEqual(d);
+    if (!(fromString instanceof Error)) {
+      console.log(fromString);
+    }
   });
 });

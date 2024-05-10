@@ -26,9 +26,10 @@ function _define_property(obj, key, value) {
 let Cenotaph = class Cenotaph extends _artifacts.Artifact {
     flaws() {
         return _flaw.Flaw.ALL.map((d)=>d).filter((f)=>{
-            let op = new _flaw.Flaw(f).flag() & this._flaws;
-            return op !== BigInt(0);
-        }).map((d)=>new _flaw.Flaw(d));
+            return new _flaw.Flaw(f).flag() == this._flaws.flag();
+        }).map((d)=>{
+            return new _flaw.Flaw(d);
+        });
     }
     constructor({ etching, flaws, mint }){
         super();

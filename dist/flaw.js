@@ -68,7 +68,7 @@ let Flaw = class Flaw {
             case 7:
                 return 'Unrecognized even tag';
             case 8:
-                return 'Unrecognized flag';
+                return 'Unrecognized field';
             case 9:
                 return 'Invalid varint';
             default:

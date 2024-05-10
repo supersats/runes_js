@@ -31,9 +31,10 @@ function decode(buffer) {
         0
     ];
     let n = BigInt(0);
+    let undeterminted = true;
     for(let i = 0; i < buffer.length; i++){
         if (i > 18) {
-            throw new Error('Varint decoding error: Buffer overflow');
+            throw new Error('Varint decoding error: Buffer overlong');
         }
         const byte = buffer[i];
         let value = BigInt(byte & 0b01111111);
@@ -44,10 +45,15 @@ function decode(buffer) {
         if ((byte & 0b10000000) === 0) {
             res[0] = n;
             res[1] = i + 1;
+            undeterminted = false;
             break;
         }
     }
-    return res;
+    if (undeterminted) {
+        throw new Error('Varint decoding error: Buffer undeterminted');
+    } else {
+        return res;
+    }
 }
 function encode(n) {
     let _v = [];
@@ -62,38 +68,37 @@ function encodeToVec(n, v) {
     v.push(bigintToLEBytes(n)[0]);
     return v;
 }
-function bigintToLEBytes(bn) {
-    const byteSize = Math.ceil(bn.toString(2).length / 8);
-    const bytes = new Uint8Array(byteSize);
-    for(let i = 0; i < byteSize; i++){
-        bytes[i] = Number(bn & BigInt(0xff));
-        bn >>= BigInt(8);
+function bigintToLEBytes(value) {
+    const buffer = new ArrayBuffer(16);
+    const view = new DataView(buffer);
+    for(let i = 0; i < 16; i++){
+        view.setUint8(i, Number(value >> BigInt(i * 8) & BigInt(0xff)));
     }
-    return bytes;
+    return new Uint8Array(buffer);
 }
 function decode2Commitment(buffer) {
     let n = BigInt(0);
     let i = 0;
     console.log(buffer);
     while(true){
-        console.log("iteration:", i, buffer[i]);
+        console.log('iteration:', i, buffer[i]);
         if (i > 18) {
-            throw new Error("Varint decoding error: OverLong");
+            throw new Error('Varint decoding error: OverLong');
         }
         if (i >= buffer.length) {
-            throw new Error("Varint decoding error: Buffer underflow");
+            throw new Error('Varint decoding error: Buffer underflow');
         }
         const byte = buffer[i];
         if (i == 18 && (byte & 0b01111100) != 0) {
-            throw new Error("Varint decoding error: Overflow");
+            throw new Error('Varint decoding error: Overflow');
         }
-        console.log("N:", n);
+        console.log('N:', n);
         let value = BigInt(byte & 0b01111111);
         value = value << BigInt(7 * i);
         n |= value;
-        console.log("N:", n);
+        console.log('N:', n);
         if ((byte & 0b10000000) == 0) {
-            console.log("finish");
+            console.log('finish');
             return [
                 n,
                 i + 1

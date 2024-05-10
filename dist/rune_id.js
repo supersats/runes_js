@@ -91,7 +91,7 @@ let RuneId = class RuneId {
     }
     delta(next) {
         const block = next.block - this.block;
-        const tx = next.tx - this.tx;
+        const tx = block == BigInt(0) ? next.tx - this.tx : next.tx;
         return [
             block,
             tx

@@ -29,7 +29,7 @@ let Message = class Message {
     static fromIntegers(tx, payload) {
         const fields = new Map();
         const edicts = [];
-        let flaws = BigInt(0);
+        let flaws = null;
         for(let i = 0; i < payload.length; i += 2){
             const tag = payload[i];
             if (tag === _rune_stone.TAG_BODY) {
@@ -37,20 +37,17 @@ let Message = class Message {
                 for(let j = i + 1; j < payload.length; j += 4){
                     const chunk = payload.slice(j, j + 4);
                     if (chunk.length !== 4) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.TrailingIntegers).flag();
-                        console.log('flaws: FlawTypes.TrailingIntegers).flag() ', flaws);
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.TrailingIntegers);
                         break;
                     }
                     let next = id.next(chunk[0], chunk[1]);
                     if (next instanceof Error) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.EdictRuneId).flag();
-                        console.log('flaws: FlawTypes.EdictRuneId).flag() ', flaws);
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.EdictRuneId);
                         break;
                     }
                     let edict = _edict.Edict.fromIntegers(tx, next, chunk[2], chunk[3]);
                     if (!edict) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.EdictOutput).flag();
-                        console.log('flaws: FlawTypes.EdictOutput).flag() ', flaws);
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.EdictOutput);
                         break;
                     }
                     id = next;
@@ -62,7 +59,7 @@ let Message = class Message {
             if (payload[i + 1] !== undefined) {
                 value = payload[i + 1];
             } else {
-                flaws |= new _flaw.Flaw(_flaw.FlawTypes.TruncatedField).flag();
+                flaws = new _flaw.Flaw(_flaw.FlawTypes.TruncatedField);
                 break;
             }
             let _values = fields.get(tag);
@@ -80,25 +77,25 @@ let Message = class Message {
     static fromOpReturn(payload) {
         const fields = new Map();
         const edicts = [];
-        let flaws = BigInt(0);
+        let flaws = null;
         for(let i = 0; i < payload.length; i += 2){
             const tag = payload[i];
             if (tag === _rune_stone.TAG_BODY) {
                 let id = new _rune_id.RuneId(BigInt(0), BigInt(0));
                 for(let j = i + 1; i < payload.length; j += 4){
                     if (j + 3 >= payload.length) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.TrailingIntegers).flag();
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.TrailingIntegers);
                         break;
                     }
                     const chunk = payload.slice(j, j + 4);
                     let next = id.next(chunk[0], chunk[1]);
                     if (next instanceof Error) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.EdictRuneId).flag();
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.EdictRuneId);
                         break;
                     }
                     let edict = _edict.Edict.fromOpReturn(next, chunk[2], chunk[3]);
                     if (!edict) {
-                        flaws |= new _flaw.Flaw(_flaw.FlawTypes.EdictOutput).flag();
+                        flaws = new _flaw.Flaw(_flaw.FlawTypes.EdictOutput);
                         break;
                     }
                     id = next;
@@ -110,7 +107,7 @@ let Message = class Message {
             if (payload[i + 1] !== undefined) {
                 value = payload[i + 1];
             } else {
-                flaws |= new _flaw.Flaw(_flaw.FlawTypes.TruncatedField).flag();
+                flaws = new _flaw.Flaw(_flaw.FlawTypes.TruncatedField);
                 break;
             }
             let _values = fields.get(tag);

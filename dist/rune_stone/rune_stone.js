@@ -215,22 +215,21 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
                 payload = (0, _tag.tagEncodeOption)(TAG_HEIGHT_END, this.etching.terms.offset === null ? null : this.etching.terms.offset[1], payload);
             }
         }
-        if (this.mint() !== null) {
+        const mint = this.mint();
+        if (mint) {
             payload = (0, _tag.tagEncodeList)(TAG_MINT, [
-                this.mint().block,
-                this.mint().tx
+                mint.block,
+                mint.tx
             ], payload);
         }
         payload = (0, _tag.tagEncodeOption)(TAG_POINTER, this.pointer, payload);
         if (this.edicts.length > 0) {
             payload = _varint.encodeToVec(TAG_BODY, payload);
             const edicts = this.edicts.slice();
-            edicts.sort((a, b)=>a.id < b.id ? -1 : 1);
+            edicts.sort((a, b)=>Number((a.id.toBigInt() - b.id.toBigInt()).toString(10)));
             let previous = new _rune_id.RuneId(BigInt(0), BigInt(0));
             for (const edict of edicts){
-                let d = previous.delta(edict.id);
-                let block = d[0];
-                let tx = d[1];
+                const [block, tx] = previous.delta(edict.id);
                 payload = _varint.encodeToVec(block, payload);
                 payload = _varint.encodeToVec(tx, payload);
                 payload = _varint.encodeToVec(edict.amount, payload);
@@ -370,16 +369,16 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
                 turbo
             });
             if (etching.supply() == null) {
-                flaws |= new _flaw.Flaw(_flaw.FlawTypes.SupplyOverflow).flag();
+                flaws = new _flaw.Flaw(_flaw.FlawTypes.SupplyOverflow);
             }
         }
         if (flags !== undefined && flags !== BigInt(0) && flags !== null) {
-            flaws |= new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedFlag).flag();
+            flaws = new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedFlag);
         }
         if (Array.from(fields.keys()).some((tag)=>Number.parseInt(tag.toString()) % 2 === 0)) {
-            flaws |= new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedEvenTag).flag();
+            flaws = new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedEvenTag);
         }
-        if (flaws !== BigInt(0)) {
+        if (flaws !== null) {
             var _etching_rune;
             return new _cenotaph.Cenotaph({
                 flaws,
@@ -428,7 +427,7 @@ let RuneStone = class RuneStone extends _artifacts.Artifact {
         _define_property(this, "pointer", void 0);
         this.edicts = edicts !== null && edicts !== void 0 ? edicts : [];
         this.etching = etching !== null && etching !== void 0 ? etching : null;
-        this.pointer = pointer !== null && pointer !== void 0 ? pointer : BigInt(0);
+        this.pointer = pointer !== null && pointer !== void 0 ? pointer : null;
         this.setMint(mint !== null && mint !== void 0 ? mint : null);
     }
 };
@@ -565,16 +564,16 @@ function decodeOpReturn(scriptHex, outLength) {
                 }) : null
             });
             if (etching.supply() == null) {
-                flaws |= new _flaw.Flaw(_flaw.FlawTypes.SupplyOverflow).flag();
+                flaws = new _flaw.Flaw(_flaw.FlawTypes.SupplyOverflow);
             }
         }
         if (flags !== undefined && flags !== BigInt(0) && flags !== null) {
-            flaws |= new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedFlag).flag();
+            flaws = new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedFlag);
         }
         if (Array.from(fields.keys()).some((tag)=>Number.parseInt(tag.toString()) % 2 === 0)) {
-            flaws |= new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedEvenTag).flag();
+            flaws = new _flaw.Flaw(_flaw.FlawTypes.UnrecognizedEvenTag);
         }
-        if (flaws !== BigInt(0)) {
+        if (flaws !== null) {
             var _etching_rune;
             return new _cenotaph.Cenotaph({
                 flaws,
